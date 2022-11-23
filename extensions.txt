@@ -1,0 +1,8 @@
+one dark pro
+material icon theme
+prettier
+github copilot
+auto rename tag
+bracket pair colorizer
+env
+es7
