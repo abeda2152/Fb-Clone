@@ -34,7 +34,8 @@ const userSchema = mongoose.Schema(
     },
     picture: {
       type: String,
-      default: "link",
+      default:
+        "https://res.cloudinary.com/drqkj4tub/image/upload/v1670391559/facebook/default_pic_hzh9f2.png",
     },
     cover: {
       type: String,

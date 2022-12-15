@@ -1,5 +1,5 @@
 const express = require("express");
-const { register } = require("../controllers/user"); //like header
+const { register, activateAccount, login } = require("../controllers/user"); //like header
 
 const router = express.Router();
 
@@ -8,5 +8,7 @@ const router = express.Router();
 });*/
 
 router.post("/register", register); //comes from controller
+router.post("/activate", activateAccount);
+router.post("/login", login);
 
 module.exports = router;
