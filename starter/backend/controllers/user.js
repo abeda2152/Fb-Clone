@@ -136,7 +136,16 @@ exports.login = async (req, res) => {
         .status(400)
         .json({ message: "Incorrect password, please try again" });
     }
-    //const token = generateToken({ id: user._id.toString() }, "7d")
+    const token = generateToken({ id: user._id.toString() }, "7d");
+    res.send({
+      id: user._id,
+      username: user.username,
+      picture: user.picture,
+      first_name: user.first_name,
+      last_name: user.last_name,
+      token: token,
+      verified: user.verified,
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
