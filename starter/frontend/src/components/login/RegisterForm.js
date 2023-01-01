@@ -1,5 +1,5 @@
 import { Form, Formik } from "formik";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import RegisterInput from "../inputs/registerinput";
 import * as Yup from "yup";
 import DateOfBirthSelect from "./DateOfBirthSelect";
@@ -9,10 +9,15 @@ import axios from "axios";
 import { useDispatch } from "react-redux";
 import cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
+import useClickOutside from "../../helpers/clickOutside";
 
 //const { REACT_APP_BACKEND_URL } = process.env;
 
 export default function RegisterForm({ setVisible }) {
+  const el = useRef(null);
+  useClickOutside(el, () => {
+    setVisible(false);
+  });
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const userInfos = {
@@ -115,7 +120,7 @@ export default function RegisterForm({ setVisible }) {
   };
   return (
     <div className="blur">
-      <div className="register">
+      <div className="register" ref={el}>
         <div className="register_header">
           <i className="exit_icon" onClick={() => setVisible(false)}></i>
           <span>Sign Up</span>
