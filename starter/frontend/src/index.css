@@ -83,7 +83,7 @@ a {
 }
 /*-----Scrollbar------*/
 .scrollbar::-webkit-scrollbar {
-  width: 8px;
+  width: 7px;
 }
 .scrollbar::-webkit-scrollbar-thumb {
   background: #aeaeafa1;
