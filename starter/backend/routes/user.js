@@ -1,5 +1,17 @@
 const express = require("express");
-const { register, activateAccount, login } = require("../controllers/user"); //like header
+//const { auth } = require("googleapis/build/src/apis/abusiveexperiencereport");
+const {
+  register,
+  activateAccount,
+  login,
+  auth,
+  sendVerification,
+  findUser,
+  sendResetPasswordCode,
+  validateResetCode,
+  changePassword,
+} = require("../controllers/user"); //like header
+const { authUser } = require("../middlewares/auth");
 
 const router = express.Router();
 
@@ -8,7 +20,13 @@ const router = express.Router();
 });*/
 
 router.post("/register", register); //comes from controller
-router.post("/activate", activateAccount);
+router.post("/activate", authUser, activateAccount);
 router.post("/login", login);
+router.post("/sendVerification", authUser, sendVerification);
+router.post("/findUser", findUser);
+router.post("/sendResetPasswordCode", sendResetPasswordCode);
+router.post("/validateResetCode", validateResetCode);
+router.post("/changePassword", changePassword);
+////router.post("/auth", authUser, auth);
 
 module.exports = router;
