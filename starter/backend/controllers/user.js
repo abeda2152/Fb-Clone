@@ -8,6 +8,7 @@ const {
 } = require("../helpers/validation");
 const { generateToken } = require("../helpers/tokens");
 const User = require("../models/User");
+const Post = require("../models/Post");
 const Code = require("../models/Code");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
@@ -246,4 +247,32 @@ exports.changePassword = async (req, res) => {
   const cryptedPassword = await bcrypt.hash(password, 12);
   await User.findOneAndUpdate({ email }, { password: cryptedPassword });
   return res.status(200).json({ message: " ok " });
+};
+
+exports.getProfile = async (req, res) => {
+  try {
+    const { username } = req.params;
+    const profile = await User.findOne({ username }).select("-password");
+    if (!profile) {
+      return res.json({ ok: false });
+    }
+    const posts = await Post.find({ user: profile._id })
+      .populate("user")
+      .sort({ createdAt: "desc" });
+    res.json({ ...profile.toObject(), posts });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.updateProfilePicture = async (req, res) => {
+  try {
+    const { url } = req.body;
+    await User.findByIdAndUpdate(req.user.id, {
+      picture: url,
+    });
+    res.json(url);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
