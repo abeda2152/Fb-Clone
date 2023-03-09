@@ -23,7 +23,6 @@ export default function Activate() {
   const activateAccount = async () => {
     try {
       setLoading(true);
-      console.log(process.env.REACT_APP_BACKEND_URL);
       const { data } = await axios.post(
         `${process.env.REACT_APP_BACKEND_URL}/activate`,
         { token },

@@ -47,6 +47,7 @@ function App() {
       });
     }
   };
+
   return (
     <div>
       {visible && <CreatePostPopup user={user} setVisible={setVisible} />}
@@ -80,12 +81,3 @@ function App() {
 }
 
 export default App;
-
-/*function App() {
-  const get = async () => {
-    const res = fetch("http://localhost:8000");
-    console.log(res);
-  };
-  get();
-  return <div>welcome to frontend</div>;
-}*/

@@ -93,7 +93,7 @@ const userSchema = mongoose.Schema(
       bio: {
         type: String,
       },
-      otherName: {
+      othername: {
         type: String,
       },
       job: {

@@ -10,7 +10,6 @@ cloudinary.config({
 exports.uploadImages = async (req, res) => {
   try {
     const { path } = req.body;
-    console.log(path);
     let files = Object.values(req.files).flat();
     let images = [];
 
@@ -50,7 +49,6 @@ const uploadToCloudinary = async (file, path) => {
       },
       (err, res) => {
         if (err) {
-          //console.log(err);
           removeTmp(file.tempFilePath);
           return res.status(400).json({ message: "Upload image failed." });
         }

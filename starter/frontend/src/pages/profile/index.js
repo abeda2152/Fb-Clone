@@ -1,6 +1,7 @@
 import axios from "axios";
 import "./style.css";
-import { useEffect, useReducer } from "react";
+import { useMediaQuery } from "react-responsive";
+import { useEffect, useReducer, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import Header from "../../components/header";
@@ -15,11 +16,13 @@ import Post from "../../components/post";
 import Photos from "./Photos";
 import Friends from "./Friends";
 import { Link } from "react-router-dom";
+import Intro from "../../components/intro";
 
 export default function Profile({ setVisible }) {
   const { username } = useParams();
   const navigate = useNavigate();
   const { user } = useSelector((state) => ({ ...state }));
+  const [photos, setPhotos] = useState({});
 
   var userName = username === undefined ? user.username : username;
   const [{ loading, error, profile }, dispatch] = useReducer(profileReducer, {
@@ -31,7 +34,16 @@ export default function Profile({ setVisible }) {
     getProfile();
   }, [userName]);
 
+  const [othername, setOthername] = useState();
+  useEffect(() => {
+    setOthername(profile?.details?.othername);
+  }, [profile]);
+
   var visitor = userName === user.username ? false : true;
+
+  const path = `${userName}/*`;
+  const max = 30;
+  const sort = "desc";
 
   const getProfile = async () => {
     try {
@@ -49,6 +61,20 @@ export default function Profile({ setVisible }) {
       if (data.ok === false) {
         navigate("/profile");
       } else {
+        try {
+          const images = await axios.post(
+            `${process.env.REACT_APP_BACKEND_URL}/listImages`,
+            { path, sort, max },
+            {
+              headers: {
+                Authorization: `Bearer ${user.token}`,
+              },
+            }
+          );
+          setPhotos(images.data);
+        } catch (error) {
+          console.log(error);
+        }
         dispatch({
           type: "PROFILE_SUCCESS",
           payload: data,
@@ -61,14 +87,43 @@ export default function Profile({ setVisible }) {
       });
     }
   };
+  const profileTop = useRef(null);
+  const [height, setHeight] = useState();
+  const leftSide = useRef(null);
+  const [leftHeight, setLeftHeight] = useState();
+  const [scrollHeight, setScrollHeight] = useState();
+  useEffect(() => {
+    setHeight(profileTop.current.clientHeight + 300);
+    setLeftHeight(leftSide.current.clientHeight);
+    window.addEventListener("scroll", getScroll, { passive: true });
+    return () => {
+      window.addEventListener("scroll", getScroll, { passive: true });
+    };
+  }, [loading, scrollHeight]);
+  const check = useMediaQuery({
+    query: "(min-width:901px)",
+  });
+
+  const getScroll = () => {
+    setScrollHeight(window.pageYOffset);
+  };
 
   return (
     <div className="profile">
       <Header page="profile" />
-      <div className="profile_top">
+      <div className="profile_top" ref={profileTop}>
         <div className="profile_container">
-          <Cover cover={profile.cover} visitor={visitor} />
-          <ProfilePictureInfos profile={profile} visitor={visitor} />
+          <Cover
+            cover={profile.cover}
+            visitor={visitor}
+            photos={photos.resources}
+          />
+          <ProfilePictureInfos
+            profile={profile}
+            visitor={visitor}
+            photos={photos.resources}
+            othername={othername}
+          />
           <ProfileMenu />
         </div>
       </div>
@@ -76,9 +131,27 @@ export default function Profile({ setVisible }) {
         <div className="profile_container">
           <div className="bottom_container">
             <PplYouMayKnow />
-            <div className="profile_grid">
-              <div className="profile_left">
-                <Photos username={userName} token={user.token} />
+            <div
+              className={`profile_grid ${
+                check && scrollHeight >= height && leftHeight > 1000
+                  ? "scrollFixed showLess"
+                  : check &&
+                    scrollHeight >= height &&
+                    leftHeight < 1000 &&
+                    "scrollFixed showMore"
+              }`}
+            >
+              <div className="profile_left" ref={leftSide}>
+                <Intro
+                  visitor={visitor}
+                  detailss={profile.details}
+                  setOthername={setOthername}
+                />
+                <Photos
+                  username={userName}
+                  token={user.token}
+                  photos={photos}
+                />
                 <Friends friends={profile.friends} />
                 <div className="fb_copyright relative_fb_copyright">
                   <Link to="/">Privacy </Link>
