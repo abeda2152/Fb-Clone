@@ -15,6 +15,12 @@ const {
   updateCover,
   updateDetails,
   addFriend,
+  cancelRequest,
+  follow,
+  unfollow,
+  acceptRequest,
+  unfriend,
+  deleteRequest,
 } = require("../controllers/user"); //like header
 const { authUser } = require("../middlewares/auth");
 
@@ -36,7 +42,13 @@ router.get("/getProfile/:username", authUser, getProfile);
 router.put("/updateProfilePicture", authUser, updateProfilePicture);
 router.put("/updateCover", authUser, updateCover);
 router.put("/updateDetails", authUser, updateDetails);
-router.put("/addFriend", authUser, addFriend);
+router.put("/addFriend/:id", authUser, addFriend);
+router.put("/cancelRequest/:id", authUser, cancelRequest);
+router.put("/follow/:id", authUser, follow);
+router.put("/unfollow/:id", authUser, unfollow);
+router.put("/acceptRequest/:id", authUser, acceptRequest);
+router.put("/unfriend/:id", authUser, unfriend);
+router.put("/deleteRequest/:id", authUser, deleteRequest);
 ////router.post("/auth", authUser, auth);
 
 module.exports = router;

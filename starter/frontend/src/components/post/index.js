@@ -3,13 +3,60 @@ import { Link } from "react-router-dom";
 import { Dots, Public } from "../../svg";
 import ReactsPopup from "./ReactsPopup";
 import "./style.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import CreateComment from "./CreateComment";
 import PostMenu from "./PostMenu";
+import { getReacts, reactPost } from "../../functions/post";
+import Comment from "./Comment";
 
 export default function Post({ post, user, profile }) {
   const [visible, setVisible] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
+  const [reacts, setReacts] = useState();
+  const [check, setCheck] = useState();
+  const [total, setTotal] = useState(0);
+  const [count, setCount] = useState(1);
+  const [comments, setComments] = useState([]);
+  useEffect(() => {
+    getPostReacts();
+  }, [post]);
+  useEffect(() => {
+    setComments(post?.comments);
+  }, [post]);
+
+  const getPostReacts = async () => {
+    const res = await getReacts(post._id, user.token);
+    setReacts(res.reacts);
+    setCheck(res.check);
+    setTotal(res.total);
+  };
+  const reactHandler = async (type) => {
+    reactPost(post._id, type, user.token);
+    if (check == type) {
+      setCheck();
+      let index = reacts.findIndex((x) => x.react == check);
+      if (index !== -1) {
+        setReacts([...reacts, (reacts[index].count = --reacts[index].count)]);
+        setTotal((prev) => --prev);
+      }
+    } else {
+      setCheck(type);
+      let index = reacts.findIndex((x) => x.react == type);
+      let index1 = reacts.findIndex((x) => x.react == check);
+      if (index !== -1) {
+        setReacts([...reacts, (reacts[index].count = ++reacts[index].count)]);
+        setTotal((prev) => ++prev);
+      }
+      if (index1 !== -1) {
+        setReacts([...reacts, (reacts[index1].count = --reacts[index1].count)]);
+        setTotal((prev) => --prev);
+      }
+    }
+  };
+
+  const showMore = () => {
+    setCount((prev) => prev + 3);
+  };
   return (
     <div className="post" style={{ width: `${profile && "100%"}` }}>
       <div className="post_header">
@@ -99,17 +146,38 @@ export default function Post({ post, user, profile }) {
         </div>
       )}
       <div className="post_infos">
-        <div className="react_count">
-          <div className="reacts_count_imgs"></div>
-          <div className="reacts_count_num"></div>
+        <div className="reacts_count">
+          <div className="reacts_count_imgs">
+            {reacts &&
+              reacts
+                .sort((a, b) => {
+                  return b.count - a.count;
+                })
+                .slice(0, 3)
+                .map(
+                  (react, i) =>
+                    react.count > 0 && (
+                      <img
+                        src={`../../../reacts/${react.react}.svg`}
+                        key={i}
+                        alt=""
+                      />
+                    )
+                )}
+          </div>
+          <div className="reacts_count_num">{total > 0 && total}</div>
         </div>
         <div className="to_right">
-          <div className="comments_count">13 comments</div>
+          <div className="comments_count">{comments.length} comments</div>
           <div className="share_count">1 share</div>
         </div>
       </div>
       <div className="post_actions">
-        <ReactsPopup visible={visible} setVisible={setVisible} />
+        <ReactsPopup
+          visible={visible}
+          setVisible={setVisible}
+          reactHandler={reactHandler}
+        />
         <div
           className="post_action hover1"
           onMouseOver={() => {
@@ -122,9 +190,41 @@ export default function Post({ post, user, profile }) {
               setVisible(false);
             }, 500);
           }}
+          onClick={() => reactHandler(check ? check : "like")}
         >
-          <i className="like_icon"></i>
-          <span>Like</span>
+          {check ? (
+            <img
+              src={`../../../reacts/${check}.svg`}
+              alt=""
+              className="small_react"
+              style={{ width: "19px" }}
+            />
+          ) : (
+            <i className="like_icon"></i>
+          )}
+          <span
+            style={{
+              color: `
+          ${
+            check === "like"
+              ? "#4267b2"
+              : check === "love"
+              ? "#f63459"
+              : check === "haha"
+              ? "#f7b125"
+              : check === "sad"
+              ? "#f7b125"
+              : check === "wow"
+              ? "#f7b125"
+              : check === "angry"
+              ? "#e4605a"
+              : ""
+          }
+          `,
+            }}
+          >
+            {check ? check : "Like"}
+          </span>
         </div>
         <div className="post_action hover1">
           <i className="comment_icon"></i>
@@ -137,7 +237,24 @@ export default function Post({ post, user, profile }) {
       </div>
       <div className="comments_wrap">
         <div className="comments_order"></div>
-        <CreateComment user={user} />
+        <CreateComment
+          user={user}
+          postId={post._id}
+          setComments={setComments}
+          setCount={setCount}
+        />
+        {comments &&
+          comments
+            .sort((a, b) => {
+              return new Date(b.commentAt) - new Date(a.commentAt);
+            })
+            .slice(0, count)
+            .map((comment, i) => <Comment comment={comment} key={i} />)}
+        {count < comments.length && (
+          <div className="view_comments" onClick={() => showMore()}>
+            view more comments
+          </div>
+        )}
       </div>
       {showMenu && (
         <PostMenu

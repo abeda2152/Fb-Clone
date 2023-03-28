@@ -93,8 +93,8 @@ export default function Profile({ setVisible }) {
   const [leftHeight, setLeftHeight] = useState();
   const [scrollHeight, setScrollHeight] = useState();
   useEffect(() => {
-    setHeight(profileTop.current.clientHeight + 300);
-    setLeftHeight(leftSide.current.clientHeight);
+    setHeight(profileTop.current.clientHeight + 350);
+    setLeftHeight(leftSide.current.clientHeight + 1000);
     window.addEventListener("scroll", getScroll, { passive: true });
     return () => {
       window.addEventListener("scroll", getScroll, { passive: true });
@@ -107,7 +107,6 @@ export default function Profile({ setVisible }) {
   const getScroll = () => {
     setScrollHeight(window.pageYOffset);
   };
-
   return (
     <div className="profile">
       <Header page="profile" />
@@ -133,11 +132,11 @@ export default function Profile({ setVisible }) {
             <PplYouMayKnow />
             <div
               className={`profile_grid ${
-                check && scrollHeight >= height && leftHeight > 1000
+                check && scrollHeight >= height && leftHeight > 1050
                   ? "scrollFixed showLess"
                   : check &&
                     scrollHeight >= height &&
-                    leftHeight < 1000 &&
+                    leftHeight < 1050 &&
                     "scrollFixed showMore"
               }`}
             >
