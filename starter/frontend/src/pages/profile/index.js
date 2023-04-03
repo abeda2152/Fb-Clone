@@ -3,7 +3,7 @@ import "./style.css";
 import { useMediaQuery } from "react-responsive";
 import { useEffect, useReducer, useRef, useState } from "react";
 import { useSelector } from "react-redux";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import Header from "../../components/header";
 import { profileReducer } from "../../reducers/reducers";
 import Cover from "./Cover";
@@ -15,10 +15,14 @@ import GridPosts from "./GridPosts";
 import Post from "../../components/post";
 import Photos from "./Photos";
 import Friends from "./Friends";
-import { Link } from "react-router-dom";
 import Intro from "../../components/intro";
+import { DotLoader } from "react-spinners";
+import CreatePostPopup from "../../components/createPostPopup";
+import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
 
-export default function Profile({ setVisible }) {
+export default function Profile({ getAllPosts }) {
+  const [visible, setVisible] = useState(false);
   const { username } = useParams();
   const navigate = useNavigate();
   const { user } = useSelector((state) => ({ ...state }));
@@ -30,9 +34,6 @@ export default function Profile({ setVisible }) {
     profile: {},
     error: "",
   });
-  useEffect(() => {
-    getProfile();
-  }, [userName]);
 
   const [othername, setOthername] = useState();
   useEffect(() => {
@@ -40,11 +41,9 @@ export default function Profile({ setVisible }) {
   }, [profile]);
 
   var visitor = userName === user.username ? false : true;
-
   const path = `${userName}/*`;
   const max = 30;
   const sort = "desc";
-
   const getProfile = async () => {
     try {
       dispatch({
@@ -87,6 +86,10 @@ export default function Profile({ setVisible }) {
       });
     }
   };
+
+  useEffect(() => {
+    getProfile();
+  }, [userName]);
   const profileTop = useRef(null);
   const [height, setHeight] = useState();
   const leftSide = useRef(null);
@@ -109,20 +112,121 @@ export default function Profile({ setVisible }) {
   };
   return (
     <div className="profile">
-      <Header page="profile" />
+      {visible && (
+        <CreatePostPopup
+          user={user}
+          setVisible={setVisible}
+          posts={profile?.posts}
+          dispatch={dispatch}
+          profile
+        />
+      )}
+      <Header page="profile" getAllPosts={getAllPosts} />
       <div className="profile_top" ref={profileTop}>
         <div className="profile_container">
-          <Cover
-            cover={profile.cover}
-            visitor={visitor}
-            photos={photos.resources}
-          />
-          <ProfilePictureInfos
-            profile={profile}
-            visitor={visitor}
-            photos={photos.resources}
-            othername={othername}
-          />
+          {loading ? (
+            <>
+              <div className="profile_cover">
+                <Skeleton
+                  height="347px"
+                  containerClassName="avatar-skeleton"
+                  style={{ borderRadius: "8px" }}
+                />
+              </div>
+              <div
+                className="profile_img_wrap"
+                style={{
+                  marginBottom: "-3rem",
+                  transform: "translateY(-8px)",
+                }}
+              >
+                <div className="profile_w_left">
+                  <Skeleton
+                    circle
+                    height="180px"
+                    width="180px"
+                    containerClassName="avatar-skeleton"
+                    style={{ transform: "translateY(-3.3rem)" }}
+                  />
+                  <div className="profile_w_col">
+                    <div className="profile_name">
+                      <Skeleton
+                        height="35px"
+                        width="200px"
+                        containerClassName="avatar-skeleton"
+                      />
+                      <Skeleton
+                        height="30px"
+                        width="100px"
+                        containerClassName="avatar-skeleton"
+                        style={{ transform: "translateY(2.5px)" }}
+                      />
+                    </div>
+                    <div className="profile_friend_count">
+                      <Skeleton
+                        height="20px"
+                        width="90px"
+                        containerClassName="avatar-skeleton"
+                        style={{ marginTop: "5px" }}
+                      />
+                    </div>
+                    <div
+                      className="profile_friend_imgs"
+                      style={{ display: "flex" }}
+                    >
+                      {Array.from(new Array(6), (val, i) => i + 1).map(
+                        (id, i) => (
+                          <Skeleton
+                            circle
+                            height="32px"
+                            width="32px"
+                            containerClassName="avatar-skeleton"
+                            style={{ transform: `translateX(${-i * 7}px)` }}
+                          />
+                        )
+                      )}
+                    </div>
+                  </div>
+                </div>
+                <div className={`friendship ${!visitor && "fix"}`}>
+                  <Skeleton
+                    height="36px"
+                    width="120px"
+                    containerClassName="avatar-skeleton"
+                  />
+                  <div className="flex">
+                    <Skeleton
+                      height="36px"
+                      width="120px"
+                      containerClassName="avatar-skeleton"
+                    />
+                    {visitor && (
+                      <Skeleton
+                        height="36px"
+                        width="120px"
+                        containerClassName="avatar-skeleton"
+                      />
+                    )}
+                  </div>
+                </div>
+              </div>
+            </>
+          ) : (
+            <>
+              <Cover
+                cover={profile.cover}
+                visitor={visitor}
+                photos={photos.resources}
+              />
+              <ProfilePictureInfos
+                profile={profile}
+                visitor={visitor}
+                photos={photos.resources}
+                othername={othername}
+              />
+            </>
+          )}
+
           <ProfileMenu />
         </div>
       </div>
@@ -141,17 +245,52 @@ export default function Profile({ setVisible }) {
               }`}
             >
               <div className="profile_left" ref={leftSide}>
-                <Intro
-                  visitor={visitor}
-                  detailss={profile.details}
-                  setOthername={setOthername}
-                />
-                <Photos
-                  username={userName}
-                  token={user.token}
-                  photos={photos}
-                />
-                <Friends friends={profile.friends} />
+                {loading ? (
+                  <>
+                    <div className="profile_card">
+                      <div className="profile_card_header">Intro</div>
+                      <div className="skeleton_loader">
+                        <DotLoader color="#1876f2" />
+                      </div>
+                    </div>
+                    <div className="profile_card">
+                      <div className="profile_card_header">
+                        Photos
+                        <div className="profile_header_link hover1">
+                          See all photos
+                        </div>
+                      </div>
+                      <div className="skeleton_loader">
+                        <DotLoader color="#1876f2" />
+                      </div>
+                    </div>
+                    <div className="profile_card">
+                      <div className="profile_card_header">
+                        Friends
+                        <div className="profile_header_link hover1">
+                          See all friends
+                        </div>
+                      </div>
+                      <div className="skeleton_loader">
+                        <DotLoader color="#1876f2" />
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <Intro
+                      visitor={visitor}
+                      detailss={profile.details}
+                      setOthername={setOthername}
+                    />
+                    <Photos
+                      username={userName}
+                      token={user.token}
+                      photos={photos}
+                    />
+                    <Friends friends={profile.friends} />
+                  </>
+                )}
                 <div className="fb_copyright relative_fb_copyright">
                   <Link to="/">Privacy </Link>
                   <span>. </span>
@@ -175,15 +314,21 @@ export default function Profile({ setVisible }) {
                   <CreatePost user={user} profile setVisible={setVisible} />
                 )}
                 <GridPosts />
-                <div className="posts">
-                  {profile.posts && profile.posts.length ? (
-                    profile.posts.map((post) => (
-                      <Post post={post} user={user} key={post._id} profile />
-                    ))
-                  ) : (
-                    <div className="no_posts">No posts available</div>
-                  )}
-                </div>
+                {loading ? (
+                  <div className="skeleton_loader">
+                    <DotLoader color="#1876f2" />
+                  </div>
+                ) : (
+                  <div className="posts">
+                    {profile.posts && profile.posts.length ? (
+                      profile.posts.map((post) => (
+                        <Post post={post} user={user} key={post._id} profile />
+                      ))
+                    ) : (
+                      <div className="no_posts">No posts available</div>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </div>

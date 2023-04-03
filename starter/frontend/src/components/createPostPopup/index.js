@@ -11,7 +11,13 @@ import PostError from "./PostError";
 import dataURItoBlob from "../../helpers/dataURItoBlob";
 import { uploadImages } from "../../functions/uploadImages";
 
-export default function CreatePostPopup({ user, setVisible }) {
+export default function CreatePostPopup({
+  user,
+  setVisible,
+  posts,
+  dispatch,
+  profile,
+}) {
   const [text, setText] = useState("");
   const [showPrev, setShowPrev] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -22,7 +28,6 @@ export default function CreatePostPopup({ user, setVisible }) {
   useClickOutside(popupRef, () => {
     setVisible(false);
   });
-
   const postSubmit = async () => {
     if (background) {
       setLoading(true);
@@ -35,7 +40,11 @@ export default function CreatePostPopup({ user, setVisible }) {
         user.token
       );
       setLoading(false);
-      if (response === "OK") {
+      if (response.status === "OK") {
+        dispatch({
+          type: profile ? "PROFILE_POSTS" : "POSTS_SUCCESS",
+          payload: [response.data, ...posts],
+        });
         setBackground("");
         setText("");
         setVisible(false);
@@ -47,7 +56,6 @@ export default function CreatePostPopup({ user, setVisible }) {
       const postImages = images.map((img) => {
         return dataURItoBlob(img);
       }); //check this postImages
-      //console.log(postImages);
       const path = `${user.username}/post_images`;
       let formData = new FormData();
       formData.append("path", path);
@@ -55,7 +63,6 @@ export default function CreatePostPopup({ user, setVisible }) {
         formData.append("file", image);
       });
       const response = await uploadImages(formData, path, user.token);
-      //console.log(response);
       const res = await createPost(
         null,
         null,
@@ -65,7 +72,11 @@ export default function CreatePostPopup({ user, setVisible }) {
         user.token
       );
       setLoading(false);
-      if (res === "OK") {
+      if (res.status === "OK") {
+        dispatch({
+          type: profile ? "PROFILE_POSTS" : "POSTS_SUCCESS",
+          payload: [res.data, ...posts],
+        });
         setText("");
         setImages("");
         setVisible(false);
@@ -83,7 +94,11 @@ export default function CreatePostPopup({ user, setVisible }) {
         user.token
       );
       setLoading(false);
-      if (response === "OK") {
+      if (response.status === "OK") {
+        dispatch({
+          type: profile ? "PROFILE_POSTS" : "POSTS_SUCCESS",
+          payload: [response.data, ...posts],
+        });
         setBackground("");
         setText("");
         setVisible(false);

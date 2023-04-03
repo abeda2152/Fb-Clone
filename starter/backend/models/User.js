@@ -94,6 +94,11 @@ const userSchema = mongoose.Schema(
         user: {
           type: ObjectId,
           ref: "User",
+          required: true,
+        },
+        createdAt: {
+          type: Date,
+          required: true,
         },
       },
     ],
@@ -130,15 +135,15 @@ const userSchema = mongoose.Schema(
         type: String,
       },
     },
-    savePosts: [
+    savedPosts: [
       {
         post: {
           type: ObjectId,
           ref: "Post",
         },
-        saveDate: {
+        savedAt: {
           type: Date,
-          default: new Date(),
+          required: true,
         },
       },
     ],

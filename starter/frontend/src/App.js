@@ -11,18 +11,16 @@ import { useSelector } from "react-redux";
 import { useEffect, useReducer, useState } from "react";
 import axios from "axios";
 import { postReducer } from "./reducers/reducers";
+import Friends from "./pages/friends";
 
 function App() {
   const [visible, setVisible] = useState(false);
-  const { user } = useSelector((state) => ({ ...state }));
+  const { user, darkTheme } = useSelector((state) => ({ ...state }));
   const [{ loading, error, posts }, dispatch] = useReducer(postReducer, {
     loading: false,
     posts: [],
     error: "",
   });
-  useEffect(() => {
-    getAllPosts();
-  }, []);
   const getAllPosts = async () => {
     try {
       dispatch({
@@ -47,25 +45,59 @@ function App() {
       });
     }
   };
-
+  useEffect(() => {
+    getAllPosts();
+  }, []);
   return (
-    <div>
-      {visible && <CreatePostPopup user={user} setVisible={setVisible} />}
+    <div className={darkTheme && "dark"}>
+      {visible && (
+        <CreatePostPopup
+          user={user}
+          setVisible={setVisible}
+          posts={posts}
+          dispatch={dispatch}
+        />
+      )}
       <Routes>
         <Route element={<LoggedInRoutes />}>
           <Route
             path="/profile"
-            element={<Profile setVisible={setVisible} />}
+            element={
+              <Profile setVisible={setVisible} getAllPosts={getAllPosts} />
+            }
             exact
           />
           <Route
             path="/profile/:username"
-            element={<Profile setVisible={setVisible} />}
+            element={
+              <Profile setVisible={setVisible} getAllPosts={getAllPosts} />
+            }
+            exact
+          />
+          <Route
+            path="/friends"
+            element={
+              <Friends setVisible={setVisible} getAllPosts={getAllPosts} />
+            }
+            exact
+          />
+          <Route
+            path="/friends/:type"
+            element={
+              <Friends setVisible={setVisible} getAllPosts={getAllPosts} />
+            }
             exact
           />
           <Route
             path="/"
-            element={<Home setVisible={setVisible} posts={posts} />}
+            element={
+              <Home
+                setVisible={setVisible}
+                posts={posts}
+                loading={loading}
+                getAllPosts={getAllPosts}
+              />
+            }
             exact
           />{" "}
           {/*main page*/}

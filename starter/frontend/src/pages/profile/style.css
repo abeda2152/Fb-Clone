@@ -339,13 +339,11 @@
   font-weight: 600;
 }
 .profile_friend_imgs {
-  align-items: center !important;
-  justify-content: space-evenly !important;
+  align-items: center;
 }
 .profile_friend_imgs img {
   width: 32px;
   height: 32px;
-  margin: 1px;
   border-radius: 50%;
   box-shadow: 0 1px 2px var(--shadow-1);
 }
@@ -522,3 +520,24 @@
   height: 34px;
 }
 /*friendship*/
+.loader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.friends_menu_wrap {
+  position: relative;
+}
+.fix {
+  flex-direction: row !important;
+}
+.react-loading-skeleton {
+  --base-color: #ccc !important;
+  --highlight-color: #ddd !important;
+}
+.skeleton_loader {
+  height: 100px;
+  width: 100%;
+  display: grid;
+  place-items: center;
+}

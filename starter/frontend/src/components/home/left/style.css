@@ -95,6 +95,7 @@
   border-radius: 10px;
   font-size: 14px;
   font-weight: 500;
+  color: var(--color-primary);
 }
 .shortcut_item img {
   width: 36px;
@@ -117,4 +118,7 @@
   position: relative;
   width: 97%;
   margin-top: 2rem;
+}
+.left_home .small_circle {
+  background: rgb(214, 214, 214);
 }

@@ -58,7 +58,14 @@ export default function ProfilePictureInfos({
                   className="profile_photo_card"
                   key={i}
                 >
-                  <img src={friend.picture} alt="" />
+                  <img
+                    src={friend.picture}
+                    alt=""
+                    style={{
+                      transform: `translateX(${-i * 7}px)`,
+                      zIndex: `${i}`,
+                    }}
+                  />
                 </Link>
               ))}
           </div>
